@@ -1,0 +1,48 @@
+package br.com.agenda.eventosapi.service;
+
+import br.com.agenda.eventosapi.model.Participante;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+@Service
+public class EmailService {
+    private final Resend resend;
+
+    public EmailService(@Value("${resend.api.key}") String apiKey) {
+        this.resend = new Resend(apiKey);
+    }
+
+    @Async
+    public void enviarEmailConfirmacaoInscricao(Participante participante) {
+        String nomeEvento = participante.getEvento().getNome();
+        String dataEvento = participante.getEvento().getData().toString();
+
+        String assunto = "Confirmação de Inscrição no Evento: " + nomeEvento;
+        String corpoHtml = String.format(
+                "<h1>Olá, %s!</h1>" +
+                        "<p>A sua inscrição no evento <strong>%s</strong>, que acontecerá em %s, foi confirmada com sucesso!</p>" +
+                        "<p>Estamos ansiosos por vê-lo lá.</p>",
+                participante.getNome(), nomeEvento, dataEvento
+        );
+
+        // CLASSE CORRIGIDA: CreateEmailOptions em vez de SendEmailRequest
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("confirmacao@seudominio.com") // Deve ser um domínio verificado no Resend
+                .to(participante.getEmail())
+                .subject(assunto)
+                .html(corpoHtml)
+                .build();
+
+        try {
+            // MÉTODO CORRETO
+            CreateEmailResponse data = resend.emails().send(params);
+            System.out.println("Email de confirmação enviado com sucesso! ID: " + data.getId());
+        } catch (ResendException e) {
+            System.err.println("Erro ao enviar email: " + e.getMessage());
+        }
+    }
+}
