@@ -29,6 +29,7 @@ public class UsuarioService {
             throw new RuntimeException("Este email já está em uso.");
         }
         String encryptedPassword = passwordEncoder.encode(dto.senha());
+
         Usuario novoUsuario = new Usuario(dto.nome(), dto.email(), encryptedPassword, UsuarioRole.PARTICIPANTE);
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
         return new UsuarioResponseDTO(usuarioSalvo.getId(), usuarioSalvo.getNome(), usuarioSalvo.getEmail());
