@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,10 @@ public class UsuarioService {
             throw new RuntimeException("Este email já está em uso.");
         }
         String encryptedPassword = passwordEncoder.encode(dto.senha());
-
         Usuario novoUsuario = new Usuario(dto.nome(), dto.email(), encryptedPassword, UsuarioRole.PARTICIPANTE);
+
+        novoUsuario.setDataRegisto(LocalDateTime.now());
+
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
         return new UsuarioResponseDTO(usuarioSalvo.getId(), usuarioSalvo.getNome(), usuarioSalvo.getEmail());
     }

@@ -1,5 +1,6 @@
 package br.com.agenda.eventosapi.repository;
 
+import br.com.agenda.eventosapi.dto.RankingOrganizadorDTO;
 import br.com.agenda.eventosapi.model.Evento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +20,19 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
 
     List<Evento> findByDataAfterAndCategoriaId(LocalDateTime data, Long categoriaId);
 
+    List<Evento> findAllByDataBetween(LocalDateTime inicio, LocalDateTime fim);
+
     Page<Evento> findAllByDataAfter(LocalDateTime data, Pageable pageable);
+
+    long countByDataAfter(LocalDateTime data);
+
+    @Query("""
+        SELECT new br.com.agenda.eventosapi.dto.RankingOrganizadorDTO(o.nome, COUNT(e))
+        FROM Evento e JOIN e.organizador o
+        GROUP BY o.id, o.nome
+        ORDER BY COUNT(e) DESC
+    """)
+    List<RankingOrganizadorDTO> findRankingOrganizadores();
 
     @Query(value = """
         SELECT e.* FROM eventos e

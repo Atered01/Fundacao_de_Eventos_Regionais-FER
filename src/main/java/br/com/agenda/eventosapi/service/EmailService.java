@@ -1,5 +1,6 @@
 package br.com.agenda.eventosapi.service;
 
+import br.com.agenda.eventosapi.model.Evento;
 import br.com.agenda.eventosapi.model.Participante;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
@@ -43,6 +44,41 @@ public class EmailService {
             System.out.println("Email de confirmação enviado com sucesso! ID: " + data.getId());
         } catch (ResendException e) {
             System.err.println("Erro ao enviar email: " + e.getMessage());
+        }
+    }
+    @Async
+    public void enviarEmailLembreteEvento(Evento evento) {
+        if (evento.getParticipantes().isEmpty()) {
+            return;
+        }
+
+        String assunto = "Lembrete: O seu evento '" + evento.getNome() + "' é amanhã!";
+
+        for (Participante participante : evento.getParticipantes()) {
+            String corpoHtml = String.format(
+                    "<h1>Olá, %s!</h1>" +
+                            "<p>Este é um lembrete de que o evento <strong>%s</strong> acontecerá amanhã!</p>" +
+                            "<p><strong>Data:</strong> %s</p>" +
+                            "<p><strong>Local:</strong> %s</p>" +
+                            "<p>Esperamos por si!</p>",
+                    participante.getNome(),
+                    evento.getNome(),
+                    evento.getData().toString(),
+                    evento.getEndereco().getCidade()
+            );
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from("lembretes@seudominio.com") //Altere caso queira mudar i email de dominio
+                    .to(participante.getEmail())
+                    .subject(assunto)
+                    .html(corpoHtml)
+                    .build();
+
+            try {
+                resend.emails().send(params);
+            } catch (ResendException e) {
+                System.err.printf("Falha ao enviar lembrete para %s: %s%n", participante.getEmail(), e.getMessage());
+            }
         }
     }
 }

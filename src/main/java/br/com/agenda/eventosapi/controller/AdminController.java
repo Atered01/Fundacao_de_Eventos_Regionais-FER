@@ -1,7 +1,9 @@
 package br.com.agenda.eventosapi.controller;
 
+import br.com.agenda.eventosapi.dto.DashboardStatsDTO;
 import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.model.UsuarioRole;
+import br.com.agenda.eventosapi.service.AdminService;
 import br.com.agenda.eventosapi.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,6 +25,8 @@ public class AdminController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private AdminService adminService;
 
     @Operation(summary = "Lista todos os utilizadores do sistema",
             description = "Retorna uma lista com os dados públicos de todos os utilizadores registados. Requer o cargo de ADMIN.")
@@ -48,5 +52,11 @@ public class AdminController {
             @Parameter(description = "O novo cargo a ser atribuído (ADMIN, ORGANIZADOR, ou PARTICIPANTE)") @RequestParam("role") UsuarioRole role) {
         UsuarioResponseDTO utilizadorAtualizado = usuarioService.alterarCargo(id, role);
         return ResponseEntity.ok(utilizadorAtualizado);
+    }
+
+    @Operation(summary = "Obtém estatísticas do dashboard", description = "Retorna os KPIs principais da plataforma. Requer cargo de ADMIN.")
+    @GetMapping("/estatisticas")
+    public ResponseEntity<DashboardStatsDTO> getEstatisticas() {
+        return ResponseEntity.ok(adminService.getDashboardStats());
     }
 }

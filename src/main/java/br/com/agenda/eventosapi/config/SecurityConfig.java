@@ -27,37 +27,44 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API sem estado
                 .authorizeHttpRequests(authorize -> authorize
-                                // Login e cadastro
-                                .requestMatchers(HttpMethod.POST, "/auth/registrar", "/auth/login").permitAll()
+                        // Login e cadastro
+                        .requestMatchers(HttpMethod.POST, "/auth/registrar", "/auth/login").permitAll()
 
-                                // Swagger
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Swagger
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                                // Endpoint de Admin
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Endpoint de Admin
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                                // Permissões para Eventos (agora consistente e com acesso GET público)
-                                .requestMatchers(HttpMethod.GET, "/eventos/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/eventos").hasAnyRole("ADMIN", "ORGANIZADOR") // Ajustado para consistência
-                                .requestMatchers(HttpMethod.PUT, "/eventos/*").hasAnyRole("ADMIN", "ORGANIZADOR")
-                                .requestMatchers(HttpMethod.DELETE, "/eventos/*").hasAnyRole("ADMIN", "ORGANIZADOR")
+                        // Permissões para Eventos (agora consistente e com acesso GET público)
+                        .requestMatchers(HttpMethod.GET, "/eventos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/eventos").hasAnyRole("ADMIN", "ORGANIZADOR") // Ajustado para consistência
+                        .requestMatchers(HttpMethod.PUT, "/eventos/*").hasAnyRole("ADMIN", "ORGANIZADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/eventos/*").hasAnyRole("ADMIN", "ORGANIZADOR")
 
-                                // Permissões para Organizadores
-                                .requestMatchers(HttpMethod.POST, "/organizadores").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/organizadores/*").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/organizadores/*").hasRole("ADMIN")
+                        //Permissões para o Ranking
+                        .requestMatchers(HttpMethod.GET, "/rankings/**").permitAll()
 
-                                // Permissões para Categorias
-                                .requestMatchers(HttpMethod.POST, "/categorias").hasAnyRole("ADMIN", "ORGANIZADOR")
-                                .requestMatchers(HttpMethod.PUT, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
-                                .requestMatchers(HttpMethod.DELETE, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
+                        // Permissões para Avaliações
+                        .requestMatchers(HttpMethod.GET, "/eventos/*/avaliacoes").permitAll() // Leitura pública
+                        .requestMatchers(HttpMethod.POST, "/eventos/*/avaliacoes").hasRole("PARTICIPANTE")
 
-                                // Permissões para Inscrições
-                                .requestMatchers(HttpMethod.POST, "/eventos/*/participantes/inscrever").hasRole("PARTICIPANTE")
-                                .requestMatchers(HttpMethod.DELETE, "/eventos/*/participantes/*").hasRole("PARTICIPANTE")
+                        // Permissões para Organizadores
+                        .requestMatchers(HttpMethod.POST, "/organizadores").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/organizadores/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/organizadores/*").hasRole("ADMIN")
 
-                                // Qualquer outra requisição precisa estar autenticada
-                                .anyRequest().authenticated()
+                        // Permissões para Categorias
+                        .requestMatchers(HttpMethod.POST, "/categorias").hasAnyRole("ADMIN", "ORGANIZADOR")
+                        .requestMatchers(HttpMethod.PUT, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
+
+                        // Permissões para Inscrições
+                        .requestMatchers(HttpMethod.POST, "/eventos/*/participantes/inscrever").hasRole("PARTICIPANTE")
+                        .requestMatchers(HttpMethod.DELETE, "/eventos/*/participantes/*").hasRole("PARTICIPANTE")
+
+                        // Qualquer outra requisição precisa estar autenticada
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,6 +32,12 @@ public class Usuario implements UserDetails {
 
     @Enumerated(EnumType.STRING) // Guarda o nome do enum ("ADMIN") como texto no banco
     private UsuarioRole role;
+
+    @Column(name = "data_registo")
+    private LocalDateTime dataRegisto;
+
+    @OneToMany(mappedBy = "usuario")
+    private List<Avaliacao> avaliacoes;
 
     public Usuario(String nome, String email, String senha, UsuarioRole role) {
         this.nome = nome;

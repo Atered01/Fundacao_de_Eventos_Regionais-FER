@@ -2,26 +2,28 @@ package br.com.agenda.eventosapi.controller;
 
 import br.com.agenda.eventosapi.dto.EventoCreateDTO;
 import br.com.agenda.eventosapi.dto.EventoResponseDTO;
+import br.com.agenda.eventosapi.service.CalendarService;
 import br.com.agenda.eventosapi.service.EventoService;
 import br.com.agenda.eventosapi.service.FileStorageService;
+import br.com.agenda.eventosapi.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
@@ -35,6 +37,10 @@ public class EventoController {
     private FileStorageService fileStorageService;
     @Autowired
     private EventoService eventoService;
+    @Autowired
+    private CalendarService calendarService;
+    @Autowired
+    private RelatorioService relatorioService;
 
     @Operation(summary = "Lista todos os eventos futuros de forma paginada",
             description = "Retorna uma lista paginada de eventos. Este endpoint é público e não requer autenticação.")
@@ -138,5 +144,41 @@ public class EventoController {
                 .toUriString();
         EventoResponseDTO eventoAtualizado = eventoService.atualizarImagem(id, fileDownloadUri);
         return ResponseEntity.ok(eventoAtualizado);
+    }
+
+    @Operation(summary = "Exporta a lista de inscritos de um evento para CSV",
+            description = "Gera e descarrega um ficheairo CSV com os detalhes de todos os participantes inscritos. Requer o cargo de ORGANIZADOR ou ADMIN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @GetMapping("/{id}/inscritos/exportar-csv")
+    public void exportarInscritosCsv(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv; charset=UTF-8");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=inscritos_evento_" + id + ".csv";
+        response.setHeader(headerKey, headerValue);
+
+        relatorioService.gerarCsvInscritos(response.getWriter(), id);
+    }
+
+    @Operation(summary = "Exporta os detalhes de um evento para o formato iCalendar (.ics)",
+            description = "Gera e descarrega um ficheiro .ics que pode ser importado para o Google Calendar, Outlook, etc. Endpoint público.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ficheiro .ics gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    })
+    @GetMapping("/{id}/exportar-ical")
+    public void exportarEventoIcs(
+            @Parameter(description = "ID do evento a ser exportado") @PathVariable Long id,
+            HttpServletResponse response) throws IOException {
+
+        response.setContentType("text/calendar; charset=UTF-8");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=evento_" + id + ".ics";
+        response.setHeader(headerKey, headerValue);
+
+        calendarService.gerarArquivoIcsParaEvento(id, response.getWriter());
     }
 }
