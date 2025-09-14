@@ -6,6 +6,7 @@ import java.util.List;
 public record EventoResponseDTO(Long id,
                                 String nome,
                                 String descricao,
+                                String resumo,
                                 LocalDateTime data,
                                 String imagemUrl,
                                 EnderecoDTO endereco,

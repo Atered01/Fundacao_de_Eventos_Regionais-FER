@@ -27,8 +27,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API sem estado
                 .authorizeHttpRequests(authorize -> authorize
-                        // Login e cadastro
-                        .requestMatchers(HttpMethod.POST, "/auth/registrar", "/auth/login").permitAll()
+                        // Login, Cadastro e Esquici senha
+                        .requestMatchers(HttpMethod.POST, "/auth/registrar", "/auth/login", "/auth/esqueci-senha", "/auth/redefinir-senha").permitAll()
 
                         // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

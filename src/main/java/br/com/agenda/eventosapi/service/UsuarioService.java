@@ -1,5 +1,6 @@
 package br.com.agenda.eventosapi.service;
 
+import br.com.agenda.eventosapi.dto.auth.RedefinirSenhaDTO;
 import br.com.agenda.eventosapi.dto.auth.RegistroDTO;
 import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.exception.ResourceNotFoundException;
@@ -10,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +27,9 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional
     public UsuarioResponseDTO registrar(RegistroDTO dto) {
         if (usuarioRepository.findByEmail(dto.email()) != null) {
@@ -31,17 +37,16 @@ public class UsuarioService {
         }
         String encryptedPassword = passwordEncoder.encode(dto.senha());
         Usuario novoUsuario = new Usuario(dto.nome(), dto.email(), encryptedPassword, UsuarioRole.PARTICIPANTE);
-
         novoUsuario.setDataRegisto(LocalDateTime.now());
-
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
-        return new UsuarioResponseDTO(usuarioSalvo.getId(), usuarioSalvo.getNome(), usuarioSalvo.getEmail());
+
+        return toResponseDTO(usuarioSalvo);
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarTodos() {
         return usuarioRepository.findAll().stream()
-                .map(u -> new UsuarioResponseDTO(u.getId(), u.getNome(), u.getEmail()))
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -49,10 +54,58 @@ public class UsuarioService {
     public UsuarioResponseDTO alterarCargo(Long utilizadorId, UsuarioRole novoCargo) {
         Usuario utilizador = usuarioRepository.findById(utilizadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado com o id: " + utilizadorId));
-
         utilizador.setRole(novoCargo);
         Usuario utilizadorAtualizado = usuarioRepository.save(utilizador);
 
-        return new UsuarioResponseDTO(utilizadorAtualizado.getId(), utilizadorAtualizado.getNome(), utilizadorAtualizado.getEmail());
+        // CORRIGIDO: Usa o método mapper
+        return toResponseDTO(utilizadorAtualizado);
+    }
+
+    @Transactional
+    public void solicitarRedefinicaoSenha(String email) {
+        Usuario usuario = (Usuario) usuarioRepository.findByEmail(email);
+        if (usuario == null) {
+            System.out.println("Pedido de redefinição para email (encontrado ou não): " + email);
+            return;
+        }
+        String token = UUID.randomUUID().toString();
+        LocalDateTime dataExpiracao = LocalDateTime.now().plusHours(1);
+        usuario.setTokenRedefinicaoSenha(token);
+        usuario.setTokenRedefinicaoExpiraEm(dataExpiracao);
+        usuarioRepository.save(usuario);
+        emailService.enviarEmailRedefinicaoSenha(usuario, token);
+    }
+
+    @Transactional
+    public void redefinirSenha(RedefinirSenhaDTO dto) {
+        Usuario usuario = usuarioRepository.findByTokenRedefinicaoSenha(dto.token())
+                .orElseThrow(() -> new RuntimeException("Token de redefinição inválido."));
+        if (usuario.getTokenRedefinicaoExpiraEm().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token de redefinição expirado.");
+        }
+        usuario.setSenha(passwordEncoder.encode(dto.novaSenha()));
+        usuario.setTokenRedefinicaoSenha(null);
+        usuario.setTokenRedefinicaoExpiraEm(null);
+        usuarioRepository.save(usuario);
+    }
+
+    private UsuarioResponseDTO toResponseDTO(Usuario usuario) {
+        String imagemUrl = null;
+        if (usuario.getImagemPerfil() != null) {
+            imagemUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/perfil/")
+                    .path(usuario.getId().toString())
+                    .path("/imagem")
+                    .toUriString();
+        }
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getBiografia(),
+                usuario.getCidade(),
+                imagemUrl
+        );
     }
 }

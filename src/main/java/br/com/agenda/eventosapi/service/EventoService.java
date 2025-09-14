@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,19 +35,29 @@ public class EventoService {
     private OrganizadorRepository organizadorRepository;
     @Autowired
     private EnderecoService enderecoService;
+    @Autowired
+    private ModerationService moderationService;
+    @Autowired
+    private SummarizerService summarizerService;
 
     @Transactional
     public EventoResponseDTO salvar(EventoCreateDTO dto) {
+        String conteudoParaValidar = dto.nome() + " " + dto.descricao();
+        if (!moderationService.validarConteudo(conteudoParaValidar)) {
+            throw new RuntimeException("O conteúdo do evento foi considerado impróprio e não pode ser publicado.");
+        }
         Categoria categoria = categoriaRepository.findById(dto.categoriaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada!"));
         Organizador organizador = organizadorRepository.findById(dto.organizadorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Organizador não encontrado!"));
 
         Endereco endereco = enderecoService.findOrCreate(dto.endereco());
+        String resumoGerado = summarizerService.gerarResumo(dto.descricao());
 
         Evento evento = new Evento();
         evento.setNome(dto.nome());
         evento.setDescricao(dto.descricao());
+        evento.setResumo(resumoGerado);
         evento.setData(dto.data());
         evento.setEndereco(endereco); // Associa o endereço obtido
         evento.setLimiteParticipantes(dto.limiteParticipantes());
@@ -62,6 +75,17 @@ public class EventoService {
     }
 
     private EventoResponseDTO toResponseDTO(Evento evento) {
+        String imagemUrl = null;
+        if (evento.getImagem() != null) {
+            // Se o evento tiver uma imagem, construímos o URL para o endpoint que a serve
+            imagemUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/eventos/")
+                    .path(evento.getId().toString())
+                    .path("/imagem")
+                    .toUriString();
+        }
+
         CategoriaDTO categoriaDTO = new CategoriaDTO(
                 evento.getCategoria().getId(),
                 evento.getCategoria().getNome(),
@@ -89,8 +113,9 @@ public class EventoService {
                 evento.getId(),
                 evento.getNome(),
                 evento.getDescricao(),
+                evento.getResumo(),
                 evento.getData(),
-                evento.getImagemUrl(),
+                imagemUrl,
                 enderecoDTO,
                 categoriaDTO,
                 organizadorDTO,
@@ -99,6 +124,12 @@ public class EventoService {
 
     @Transactional
     public EventoResponseDTO atualizar(Long id, EventoCreateDTO dto) {
+        String conteudoParaValidar = dto.nome() + " " + dto.descricao();
+
+        if (!moderationService.validarConteudo(conteudoParaValidar)) {
+            throw new RuntimeException("O conteúdo do evento foi considerado impróprio e não pode ser publicado.");
+        }
+        String resumoGerado = summarizerService.gerarResumo(dto.descricao());
         Evento eventoExistente = eventoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com o id: " + id));
         Categoria categoria = categoriaRepository.findById(dto.categoriaId())
@@ -110,6 +141,7 @@ public class EventoService {
 
         eventoExistente.setNome(dto.nome());
         eventoExistente.setDescricao(dto.descricao());
+        eventoExistente.setResumo(resumoGerado);
         eventoExistente.setData(dto.data());
         eventoExistente.setEndereco(endereco);
         eventoExistente.setLimiteParticipantes(dto.limiteParticipantes());
@@ -144,15 +176,22 @@ public class EventoService {
                 .collect(Collectors.toList());
     }
 
-    @jakarta.transaction.Transactional
-    public EventoResponseDTO atualizarImagem(Long id, String imagemUrl) {
+    @Transactional
+    public void salvarImagem(Long id, MultipartFile imagem) {
         Evento evento = eventoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com o id: " + id));
-
-        evento.setImagemUrl(imagemUrl);
-        Evento eventoSalvo = eventoRepository.save(evento);
-
-        return toResponseDTO(eventoSalvo);
+        try {
+            evento.setImagem(imagem.getBytes());
+            eventoRepository.save(evento);
+        } catch (IOException e) {
+            throw new RuntimeException("Falha ao processar a imagem do evento.", e);
+        }
     }
 
+    @Transactional(readOnly = true)
+    public byte[] getImagem(Long id) {
+        Evento evento = eventoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com o id: " + id));
+        return evento.getImagem();
+    }
 }

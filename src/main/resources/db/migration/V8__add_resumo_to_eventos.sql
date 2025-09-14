@@ -1,0 +1,2 @@
+ALTER TABLE eventos
+    ADD COLUMN resumo TEXT NULL;

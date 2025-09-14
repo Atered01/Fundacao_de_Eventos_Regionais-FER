@@ -33,11 +33,24 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING) // Guarda o nome do enum ("ADMIN") como texto no banco
     private UsuarioRole role;
 
+
+    @Column(name = "token_redefinicao_senha")
+    private String tokenRedefinicaoSenha;
+
+    @Column(name = "token_redefinicao_expira_em")
+    private LocalDateTime tokenRedefinicaoExpiraEm;
+
     @Column(name = "data_registo")
     private LocalDateTime dataRegisto;
 
     @OneToMany(mappedBy = "usuario")
     private List<Avaliacao> avaliacoes;
+
+    private String biografia;
+    private String cidade;
+
+    @Column(name = "imagem_perfil", columnDefinition = "MEDIUMBLOB")
+    private byte[] imagemPerfil;
 
     public Usuario(String nome, String email, String senha, UsuarioRole role) {
         this.nome = nome;

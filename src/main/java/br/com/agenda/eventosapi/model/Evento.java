@@ -2,11 +2,7 @@ package br.com.agenda.eventosapi.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,12 +28,17 @@ public class Evento {
 
     private LocalDateTime data;
 
-    @Column(name = "imagem_url")
-    private String imagemUrl;
+    @Lob
+    @Column(name = "imagem", columnDefinition = "MEDIUMBLOB")
+    private byte[] imagem;
+
 
     @ManyToOne(cascade = CascadeType.PERSIST) // Cascade PERSIST para salvar o endereço junto com o evento
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
+
+    @Column(columnDefinition = "TEXT")
+    private String resumo;
 
     @Column(name = "limite_participantes")
     private Integer limiteParticipantes;

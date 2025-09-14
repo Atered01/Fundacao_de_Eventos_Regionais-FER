@@ -4,7 +4,6 @@ import br.com.agenda.eventosapi.dto.EventoCreateDTO;
 import br.com.agenda.eventosapi.dto.EventoResponseDTO;
 import br.com.agenda.eventosapi.service.CalendarService;
 import br.com.agenda.eventosapi.service.EventoService;
-import br.com.agenda.eventosapi.service.FileStorageService;
 import br.com.agenda.eventosapi.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,8 +33,6 @@ import java.util.List;
 @Tag(name = "Eventos", description = "Endpoints para gestão de eventos")
 public class EventoController {
 
-    @Autowired
-    private FileStorageService fileStorageService;
     @Autowired
     private EventoService eventoService;
     @Autowired
@@ -92,6 +90,7 @@ public class EventoController {
     public ResponseEntity<EventoResponseDTO> atualizar(
             @Parameter(description = "ID do evento a ser atualizado") @PathVariable Long id,
             @RequestBody @Valid EventoCreateDTO dto) {
+        
         EventoResponseDTO eventoAtualizado = eventoService.atualizar(id, dto);
         return ResponseEntity.ok(eventoAtualizado);
     }
@@ -126,24 +125,23 @@ public class EventoController {
         return ResponseEntity.ok(eventos);
     }
 
-    @Operation(summary = "Faz o upload de uma imagem para um evento",
-            description = "Associa uma imagem a um evento existente. Requer o cargo de ORGANIZADOR ou ADMIN.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Imagem enviada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado")
-    })
+    @Operation(summary = "Faz o upload de uma imagem para um evento", description = "Requer cargo de ORGANIZADOR ou ADMIN.")
     @PostMapping("/{id}/imagem")
-    public ResponseEntity<EventoResponseDTO> uploadImagem(
-            @Parameter(description = "ID do evento que receberá a imagem") @PathVariable Long id,
-            @Parameter(description = "Ficheiro da imagem a ser enviado") @RequestParam("imagem") MultipartFile imagem) {
-        String nomeFicheiro = fileStorageService.storeFile(imagem);
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/imagens-eventos/")
-                .path(nomeFicheiro)
-                .toUriString();
-        EventoResponseDTO eventoAtualizado = eventoService.atualizarImagem(id, fileDownloadUri);
-        return ResponseEntity.ok(eventoAtualizado);
+    public ResponseEntity<Void> uploadImagem(
+            @PathVariable Long id,
+            @RequestParam("imagem") MultipartFile imagem) {
+
+        eventoService.salvarImagem(id, imagem);
+        return ResponseEntity.ok().build();
+    }
+    @Operation(summary = "Obtém a imagem de um evento", description = "Retorna a imagem de um evento específico.")
+    @GetMapping("/{id}/imagem")
+    public ResponseEntity<byte[]> getImagem(@PathVariable Long id) {
+        byte[] imagem = eventoService.getImagem(id);
+        if (imagem == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imagem);
     }
 
     @Operation(summary = "Exporta a lista de inscritos de um evento para CSV",

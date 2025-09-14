@@ -1,9 +1,6 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.auth.LoginDTO;
-import br.com.agenda.eventosapi.dto.auth.LoginResponseDTO;
-import br.com.agenda.eventosapi.dto.auth.RegistroDTO;
-import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
+import br.com.agenda.eventosapi.dto.auth.*;
 import br.com.agenda.eventosapi.model.Usuario;
 import br.com.agenda.eventosapi.service.TokenService;
 import br.com.agenda.eventosapi.service.UsuarioService;
@@ -64,5 +61,21 @@ public class AuthController {
         var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
+    }
+
+    @Operation(summary = "Solicita a redefinição de senha",
+            description = "Inicia o fluxo de redefinição de senha para um utilizador. Um e-mail com um link será enviado.")
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<Void> solicitarRedefinicao(@RequestBody @Valid EsqueciSenhaDTO dto) {
+        usuarioService.solicitarRedefinicaoSenha(dto.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Redefine a senha do utilizador",
+            description = "Finaliza o fluxo de redefinição de senha usando o token recebido por e-mail.")
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Void> redefinirSenha(@RequestBody @Valid RedefinirSenhaDTO dto) {
+        usuarioService.redefinirSenha(dto);
+        return ResponseEntity.ok().build();
     }
 }
