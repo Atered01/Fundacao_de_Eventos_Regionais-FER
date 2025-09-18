@@ -8,7 +8,5 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
-
-    Page<Evento> findByOrganizadorId(Long organizadorId, Pageable pageable);
     Optional<Endereco> findByLogradouroAndNumeroAndCidade(String logradouro, String numero, String cidade);
 }
