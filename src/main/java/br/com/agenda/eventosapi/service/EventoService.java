@@ -74,7 +74,7 @@ public class EventoService {
         return eventoRepository.findById(id).map(this::toResponseDTO);
     }
 
-    private EventoResponseDTO toResponseDTO(Evento evento) {
+    protected EventoResponseDTO toResponseDTO(Evento evento) {
         String imagemUrl = null;
         if (evento.getImagem() != null) {
             // Se o evento tiver uma imagem, construímos o URL para o endpoint que a serve

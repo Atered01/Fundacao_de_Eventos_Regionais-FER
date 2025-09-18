@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/eventos/{eventoId}/avaliacoes")
@@ -42,12 +43,13 @@ public class AvaliacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAvaliacao);
     }
 
-    @Operation(summary = "Lista todas as avaliações de um evento",
-            description = "Retorna uma lista com todas as avaliações de um evento específico. Endpoint público.")
+    @Operation(summary = "Lista todas as avaliações de um evento de forma paginada", // Descrição atualizada
+            description = "Retorna uma lista paginada com todas as avaliações de um evento específico. Endpoint público.")
     @GetMapping
-    public ResponseEntity<List<AvaliacaoResponseDTO>> listarPorEvento(
-            @Parameter(description = "ID do evento para o qual as avaliações serão listadas") @PathVariable Long eventoId) {
-        List<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listarPorEvento(eventoId);
-        return ResponseEntity.ok(avaliacoes);
+    public ResponseEntity<Page<AvaliacaoResponseDTO>> listarPorEvento(
+            @Parameter(description = "ID do evento para o qual as avaliações serão listadas") @PathVariable Long eventoId,
+            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=10&sort=dataAvaliacao,desc)")
+            @PageableDefault(size = 10, sort = "dataAvaliacao") Pageable pageable) {
+        return ResponseEntity.ok(avaliacaoService.listarPorEvento(eventoId, pageable));
     }
 }

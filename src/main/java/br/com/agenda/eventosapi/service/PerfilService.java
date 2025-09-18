@@ -1,9 +1,13 @@
 package br.com.agenda.eventosapi.service;
 
+import br.com.agenda.eventosapi.dto.EventoResponseDTO;
+import br.com.agenda.eventosapi.dto.InscricaoResponseDTO;
 import br.com.agenda.eventosapi.dto.PerfilUpdateDTO;
 import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.exception.ResourceNotFoundException;
 import br.com.agenda.eventosapi.model.Usuario;
+import br.com.agenda.eventosapi.repository.EventoRepository;
+import br.com.agenda.eventosapi.repository.ParticipanteRepository;
 import br.com.agenda.eventosapi.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 
@@ -19,6 +25,27 @@ public class PerfilService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private EventoRepository eventoRepository;
+    @Autowired
+    private ParticipanteRepository participanteRepository;
+    @Autowired
+    private EventoService eventoService;
+
+
+    @Transactional(readOnly = true)
+    public Page<EventoResponseDTO> getMeusEventos(Authentication authentication, Pageable pageable) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+       return eventoRepository.findByOrganizadorId(usuario.getId(), pageable)
+                .map(evento -> eventoService.toResponseDTO(evento)); // Reutilizando o mapper
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InscricaoResponseDTO> getMinhasInscricoes(Authentication authentication, Pageable pageable) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        return participanteRepository.findByEmail(usuario.getEmail(), pageable)
+                .map(InscricaoResponseDTO::fromEntity);
+    }
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO getPerfil(Authentication authentication) {

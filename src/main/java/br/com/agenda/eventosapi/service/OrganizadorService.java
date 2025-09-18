@@ -5,6 +5,8 @@ import br.com.agenda.eventosapi.exception.ResourceNotFoundException;
 import br.com.agenda.eventosapi.model.Organizador;
 import br.com.agenda.eventosapi.repository.OrganizadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +24,10 @@ public class OrganizadorService {
     private OrganizadorRepository organizadorRepository;
 
     @Transactional(readOnly = true)
-    public List<OrganizadorDTO> listarTodos() {
-        return organizadorRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<OrganizadorDTO> listarTodos(Pageable pageable) {
+        return organizadorRepository.findAll(pageable)
+                .map(this::toDTO);
     }
-
     @Transactional(readOnly = true)
     public Optional<OrganizadorDTO> buscarPorId(Long id) {
         return organizadorRepository.findById(id).map(this::toDTO);
@@ -43,12 +43,8 @@ public class OrganizadorService {
     public OrganizadorDTO atualizar(Long id, OrganizadorDTO dto) {
         Organizador organizadorExistente = organizadorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Organizador não encontrado com o id: " + id));
-
         organizadorExistente.setNome(dto.nome());
         organizadorExistente.setEmail(dto.email());
-        // Se o telefone precisar ser atualizado
-        // organizadorExistente.setTelefone(dto.telefone());
-
         return toDTO(organizadorRepository.save(organizadorExistente));
     }
 
@@ -60,7 +56,6 @@ public class OrganizadorService {
         organizadorRepository.deleteById(id);
     }
 
-    // --- Mapeadores ---
     private OrganizadorDTO toDTO(Organizador organizador) {
         return new OrganizadorDTO(organizador.getId(), organizador.getNome(), organizador.getEmail());
     }

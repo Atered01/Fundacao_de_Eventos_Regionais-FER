@@ -23,7 +23,7 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     List<Evento> findAllByDataBetween(LocalDateTime inicio, LocalDateTime fim);
 
     Page<Evento> findAllByDataAfter(LocalDateTime data, Pageable pageable);
-
+    Page<Evento> findByOrganizadorId(Long organizadorId, Pageable pageable);
     long countByDataAfter(LocalDateTime data);
 
     @Query("""

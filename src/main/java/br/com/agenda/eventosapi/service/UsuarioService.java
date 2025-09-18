@@ -8,6 +8,8 @@ import br.com.agenda.eventosapi.model.Usuario;
 import br.com.agenda.eventosapi.model.UsuarioRole;
 import br.com.agenda.eventosapi.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +46,9 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<UsuarioResponseDTO> listarTodos(Pageable pageable) {
+        return usuarioRepository.findAll(pageable)
+                .map(this::toResponseDTO); // O .map do Page faz a conversão para nós
     }
 
     @Transactional

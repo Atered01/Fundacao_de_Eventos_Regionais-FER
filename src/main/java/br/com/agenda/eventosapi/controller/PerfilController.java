@@ -1,13 +1,19 @@
 package br.com.agenda.eventosapi.controller;
 
+import br.com.agenda.eventosapi.dto.EventoResponseDTO;
+import br.com.agenda.eventosapi.dto.InscricaoResponseDTO;
 import br.com.agenda.eventosapi.dto.PerfilUpdateDTO;
 import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.service.PerfilService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +34,28 @@ public class PerfilController {
     public ResponseEntity<UsuarioResponseDTO> getPerfil(Authentication authentication) {
         return ResponseEntity.ok(perfilService.getPerfil(authentication));
     }
+
+
+    @Operation(summary = "Lista os eventos criados pelo utilizador autenticado",
+            description = "Retorna uma lista paginada de todos os eventos onde o utilizador autenticado é o organizador.")
+    @GetMapping("/meus-eventos")
+    public ResponseEntity<Page<EventoResponseDTO>> getMeusEventos(
+            Authentication authentication,
+            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=5)")
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(perfilService.getMeusEventos(authentication, pageable));
+    }
+
+    @Operation(summary = "Lista as inscrições do utilizador autenticado",
+            description = "Retorna uma lista paginada de todos os eventos nos quais o utilizador autenticado está inscrito.")
+    @GetMapping("/minhas-inscricoes")
+    public ResponseEntity<Page<InscricaoResponseDTO>> getMinhasInscricoes(
+            Authentication authentication,
+            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=5)")
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(perfilService.getMinhasInscricoes(authentication, pageable));
+    }
+
 
     @Operation(summary = "Atualiza os dados de texto do perfil do utilizador autenticado")
     @PutMapping

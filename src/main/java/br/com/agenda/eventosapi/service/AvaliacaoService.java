@@ -10,6 +10,8 @@ import br.com.agenda.eventosapi.repository.AvaliacaoRepository;
 import br.com.agenda.eventosapi.repository.EventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,15 +54,13 @@ public class AvaliacaoService {
     }
 
     @Transactional(readOnly = true)
-    public List<AvaliacaoResponseDTO> listarPorEvento(Long eventoId) {
+    public Page<AvaliacaoResponseDTO> listarPorEvento(Long eventoId, Pageable pageable) {
         if (!eventoRepository.existsById(eventoId)) {
             throw new ResourceNotFoundException("Evento não encontrado com o id: " + eventoId);
         }
 
-        Evento evento = eventoRepository.findById(eventoId).get();
-        return evento.getAvaliacoes().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+        return avaliacaoRepository.findByEventoId(eventoId, pageable)
+                .map(this::toResponseDTO);
     }
 
     private void validarPermissaoParaAvaliar(Evento evento, Usuario usuario) {

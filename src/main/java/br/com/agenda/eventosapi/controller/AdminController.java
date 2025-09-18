@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,16 +31,15 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @Operation(summary = "Lista todos os utilizadores do sistema",
-            description = "Retorna uma lista com os dados públicos de todos os utilizadores registados. Requer o cargo de ADMIN.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de utilizadores retornada com sucesso"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado. Apenas utilizadores com cargo ADMIN podem aceder a este recurso.")
-    })
+    @Operation(summary = "Lista todos os utilizadores do sistema de forma paginada", // Descrição atualizada
+            description = "Retorna uma lista paginada com os dados públicos de todos os utilizadores registados. Requer o cargo de ADMIN.")
     @GetMapping("/usuarios")
-    public ResponseEntity<List<UsuarioResponseDTO>> listarUtilizadores() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarUtilizadores(
+            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=10&sort=nome,asc)")
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.listarTodos(pageable));
     }
+
 
     @Operation(summary = "Altera o cargo (role) de um utilizador específico",
             description = "Promove ou rebaixa um utilizador para um novo cargo (ADMIN, ORGANIZADOR, PARTICIPANTE). Requer o cargo de ADMIN.")

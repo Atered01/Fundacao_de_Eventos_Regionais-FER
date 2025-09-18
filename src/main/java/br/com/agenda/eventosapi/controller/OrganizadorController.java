@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -25,11 +28,13 @@ public class OrganizadorController {
     @Autowired
     private OrganizadorService organizadorService;
 
-    @Operation(summary = "Lista todos os organizadores",
-            description = "Retorna uma lista com todos os organizadores cadastrados. Qualquer utilizador autenticado pode aceder.")
+    @Operation(summary = "Lista todos os organizadores de forma paginada", // Descrição atualizada
+            description = "Retorna uma lista paginada com todos os organizadores cadastrados. Qualquer utilizador autenticado pode aceder.")
     @GetMapping
-    public ResponseEntity<List<OrganizadorDTO>> listarTodos() {
-        return ResponseEntity.ok(organizadorService.listarTodos());
+    public ResponseEntity<Page<OrganizadorDTO>> listarTodos(
+            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=10&sort=nome,asc)")
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        return ResponseEntity.ok(organizadorService.listarTodos(pageable));
     }
 
     @Operation(summary = "Busca um organizador por ID",
