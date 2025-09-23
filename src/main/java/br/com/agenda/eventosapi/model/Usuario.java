@@ -33,7 +33,6 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING) // Guarda o nome do enum ("ADMIN") como texto no banco
     private UsuarioRole role;
 
-
     @Column(name = "token_redefinicao_senha")
     private String tokenRedefinicaoSenha;
 

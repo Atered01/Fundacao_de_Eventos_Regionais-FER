@@ -32,7 +32,6 @@ public class Evento {
     @Column(name = "imagem", columnDefinition = "MEDIUMBLOB")
     private byte[] imagem;
 
-
     @ManyToOne(cascade = CascadeType.PERSIST) // Cascade PERSIST para salvar o endereço junto com o evento
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
