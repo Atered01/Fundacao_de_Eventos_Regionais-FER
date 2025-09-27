@@ -64,8 +64,10 @@ public class PerfilController {
     }
 
     @Operation(summary = "Faz o upload da foto de perfil do utilizador autenticado")
-    @PostMapping("/imagem")
-    public ResponseEntity<Void> uploadImagemPerfil(Authentication authentication, @RequestParam("imagem") MultipartFile imagem) {
+    @PostMapping(value = "/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadImagemPerfil(
+            Authentication authentication,
+            @Parameter(description = "Ficheiro da imagem a ser enviado") @RequestParam("imagem") MultipartFile imagem) {
         String userEmail = authentication.getName();
         perfilService.salvarImagemPerfil(userEmail, imagem);
         return ResponseEntity.ok().build();

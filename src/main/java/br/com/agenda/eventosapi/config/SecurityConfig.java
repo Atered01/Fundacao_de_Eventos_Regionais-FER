@@ -45,6 +45,9 @@ public class SecurityConfig {
                         //Permissões para o Ranking
                         .requestMatchers(HttpMethod.GET, "/rankings/**").permitAll()
 
+                        //Permissões para o ViaCep
+                        .requestMatchers(HttpMethod.GET, "/enderecos/**").permitAll()
+
                         // Permissões para Avaliações
                         .requestMatchers(HttpMethod.GET, "/eventos/*/avaliacoes").permitAll() // Leitura pública
                         .requestMatchers(HttpMethod.POST, "/eventos/*/avaliacoes").hasRole("PARTICIPANTE")

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +44,9 @@ public class EventoController {
     @Operation(summary = "Lista todos os eventos futuros de forma paginada",
             description = "Retorna uma lista paginada de eventos. Este endpoint é público e não requer autenticação.")
     @GetMapping
+    @PageableAsQueryParam
     public ResponseEntity<Page<EventoResponseDTO>> listarEventos(
-            @Parameter(description = "Configuração da paginação e ordenação (ex: ?page=0&size=10&sort=data,asc)")
+          //  @Parameter(description = "Configuração da paginação e ordenação (ex: ?page=0&size=10&sort=data,asc)")
             @PageableDefault(size = 10, sort = "data") Pageable pageable) {
         Page<EventoResponseDTO> eventos = eventoService.listarEventosPaginado(pageable);
         return ResponseEntity.ok(eventos);
@@ -126,10 +128,10 @@ public class EventoController {
     }
 
     @Operation(summary = "Faz o upload de uma imagem para um evento", description = "Requer cargo de ORGANIZADOR ou ADMIN.")
-    @PostMapping("/{id}/imagem")
+    @PostMapping(value = "/{id}/imagem",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadImagem(
-            @PathVariable Long id,
-            @RequestParam("imagem") MultipartFile imagem) {
+            @Parameter(description = "ID do evento que receberá a imagem") @PathVariable Long id,
+            @Parameter(description = "Ficheiro da imagem a ser enviado") @RequestParam("imagem") MultipartFile imagem) {
 
         eventoService.salvarImagem(id, imagem);
         return ResponseEntity.ok().build();

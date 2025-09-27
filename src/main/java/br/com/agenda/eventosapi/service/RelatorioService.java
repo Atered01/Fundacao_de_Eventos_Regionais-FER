@@ -18,7 +18,6 @@ public class RelatorioService {
     @Autowired
     private EventoRepository eventoRepository;
 
-
     public void gerarCsvInscritos(Writer writer, Long eventoId) {
         Evento evento = eventoRepository.findById(eventoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com o id: " + eventoId));

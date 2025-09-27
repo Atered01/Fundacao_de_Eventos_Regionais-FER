@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,15 +32,15 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @Operation(summary = "Lista todos os utilizadores do sistema de forma paginada", // Descrição atualizada
+    @Operation(summary = "Lista todos os utilizadores do sistema de forma paginada",
             description = "Retorna uma lista paginada com os dados públicos de todos os utilizadores registados. Requer o cargo de ADMIN.")
     @GetMapping("/usuarios")
+// Substitua @Parameter por @PageableAsQueryParam
+    @PageableAsQueryParam
     public ResponseEntity<Page<UsuarioResponseDTO>> listarUtilizadores(
-            @Parameter(description = "Configuração da paginação (ex: ?page=0&size=10&sort=nome,asc)")
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarTodos(pageable));
     }
-
 
     @Operation(summary = "Altera o cargo (role) de um utilizador específico",
             description = "Promove ou rebaixa um utilizador para um novo cargo (ADMIN, ORGANIZADOR, PARTICIPANTE). Requer o cargo de ADMIN.")
