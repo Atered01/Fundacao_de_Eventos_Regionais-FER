@@ -1,8 +1,7 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.OrganizadorDTO;
-import br.com.agenda.eventosapi.model.Organizador;
-import br.com.agenda.eventosapi.service.OrganizadorService;
+import br.com.agenda.eventosapi.dto.admin.OrganizadorDTO;
+import br.com.agenda.eventosapi.service.admin.OrganizadorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/organizadores")

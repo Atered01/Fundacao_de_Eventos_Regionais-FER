@@ -1,7 +1,7 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.ViaCepResponseDTO;
-import br.com.agenda.eventosapi.service.ViaCepService;
+import br.com.agenda.eventosapi.dto.utils.ViaCepResponseDTO;
+import br.com.agenda.eventosapi.service.utils.ViaCepService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,10 @@
 package br.com.agenda.eventosapi.controller;
 
 import br.com.agenda.eventosapi.dto.auth.*;
+import br.com.agenda.eventosapi.dto.usuario.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.model.Usuario;
-import br.com.agenda.eventosapi.service.TokenService;
-import br.com.agenda.eventosapi.service.UsuarioService;
+import br.com.agenda.eventosapi.service.security.TokenService;
+import br.com.agenda.eventosapi.service.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

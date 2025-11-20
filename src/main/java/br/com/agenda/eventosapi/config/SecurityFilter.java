@@ -1,7 +1,7 @@
 package br.com.agenda.eventosapi.config;
 
 import br.com.agenda.eventosapi.repository.UsuarioRepository;
-import br.com.agenda.eventosapi.service.TokenService;
+import br.com.agenda.eventosapi.service.security.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

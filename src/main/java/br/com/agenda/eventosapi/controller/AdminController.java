@@ -1,10 +1,10 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.DashboardStatsDTO;
-import br.com.agenda.eventosapi.dto.auth.UsuarioResponseDTO;
+import br.com.agenda.eventosapi.dto.admin.DashboardStatsDTO;
+import br.com.agenda.eventosapi.dto.usuario.UsuarioResponseDTO;
 import br.com.agenda.eventosapi.model.UsuarioRole;
-import br.com.agenda.eventosapi.service.AdminService;
-import br.com.agenda.eventosapi.service.UsuarioService;
+import br.com.agenda.eventosapi.service.admin.AdminService;
+import br.com.agenda.eventosapi.service.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin")

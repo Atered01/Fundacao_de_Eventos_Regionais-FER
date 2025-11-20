@@ -1,8 +1,8 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.InscricaoRequestDTO;
-import br.com.agenda.eventosapi.dto.ParticipanteDTO;
-import br.com.agenda.eventosapi.service.ParticipanteService;
+import br.com.agenda.eventosapi.dto.evento.InscricaoRequestDTO;
+import br.com.agenda.eventosapi.dto.usuario.ParticipanteDTO;
+import br.com.agenda.eventosapi.service.usuario.ParticipanteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

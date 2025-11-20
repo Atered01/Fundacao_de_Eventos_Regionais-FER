@@ -1,7 +1,7 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.EnderecoDTO;
-import br.com.agenda.eventosapi.dto.EventoCreateDTO;
+import br.com.agenda.eventosapi.dto.endereco.EnderecoDTO;
+import br.com.agenda.eventosapi.dto.evento.EventoCreateDTO;
 import br.com.agenda.eventosapi.model.Categoria;
 import br.com.agenda.eventosapi.model.Organizador;
 import br.com.agenda.eventosapi.repository.CategoriaRepository;

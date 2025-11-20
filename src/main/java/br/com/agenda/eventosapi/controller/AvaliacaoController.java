@@ -1,8 +1,8 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.AvaliacaoCreateDTO;
-import br.com.agenda.eventosapi.dto.AvaliacaoResponseDTO;
-import br.com.agenda.eventosapi.service.AvaliacaoService;
+import br.com.agenda.eventosapi.dto.avaliacao.AvaliacaoCreateDTO;
+import br.com.agenda.eventosapi.dto.avaliacao.AvaliacaoResponseDTO;
+import br.com.agenda.eventosapi.service.evento.AvaliacaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

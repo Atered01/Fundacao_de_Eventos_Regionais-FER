@@ -1,10 +1,10 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.EventoCreateDTO;
-import br.com.agenda.eventosapi.dto.EventoResponseDTO;
-import br.com.agenda.eventosapi.service.CalendarService;
-import br.com.agenda.eventosapi.service.EventoService;
-import br.com.agenda.eventosapi.service.RelatorioService;
+import br.com.agenda.eventosapi.dto.evento.EventoCreateDTO;
+import br.com.agenda.eventosapi.dto.evento.EventoResponseDTO;
+import br.com.agenda.eventosapi.service.utils.CalendarService;
+import br.com.agenda.eventosapi.service.evento.EventoService;
+import br.com.agenda.eventosapi.service.admin.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -41,14 +43,27 @@ public class EventoController {
     @Autowired
     private RelatorioService relatorioService;
 
-    @Operation(summary = "Lista todos os eventos futuros de forma paginada",
-            description = "Retorna uma lista paginada de eventos. Este endpoint é público e não requer autenticação.")
+    @Operation(summary = "Lista eventos com filtros (Nome, Cidade, Categoria, Data)",
+            description = "Retorna uma lista paginada. Permite busca parcial por nome e cidade, e filtro exato por categoria e data.")
     @GetMapping
     @PageableAsQueryParam
     public ResponseEntity<Page<EventoResponseDTO>> listarEventos(
-          //  @Parameter(description = "Configuração da paginação e ordenação (ex: ?page=0&size=10&sort=data,asc)")
+
+            @Parameter(description = "Busca por parte do nome do evento (ex: 'Festival')")
+            @RequestParam(required = false) String nome,
+
+            @Parameter(description = "Busca por cidade (ex: 'Lisboa')")
+            @RequestParam(required = false) String cidade,
+
+            @Parameter(description = "Filtrar por categoria exata")
+            @RequestParam(required = false) String categoria,
+
+            @Parameter(description = "Filtrar por data específica (ISO: YYYY-MM-DD)")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+
             @PageableDefault(size = 10, sort = "data") Pageable pageable) {
-        Page<EventoResponseDTO> eventos = eventoService.listarEventosPaginado(pageable);
+
+        Page<EventoResponseDTO> eventos = eventoService.listarComFiltros(nome, cidade, categoria, data, pageable);
         return ResponseEntity.ok(eventos);
     }
 
@@ -180,5 +195,13 @@ public class EventoController {
         response.setHeader(headerKey, headerValue);
 
         calendarService.gerarArquivoIcsParaEvento(id, response.getWriter());
+    }
+
+    @Operation(summary = "Lista todas as cidades com eventos",
+            description = "Retorna uma lista única de cidades onde existem eventos, baseada nos endereços cadastrados.")
+    @GetMapping("/cidades")
+    public ResponseEntity<List<String>> listarCidades() {
+        List<String> cidades = eventoService.listarCidadesComEventos();
+        return ResponseEntity.ok(cidades);
     }
 }

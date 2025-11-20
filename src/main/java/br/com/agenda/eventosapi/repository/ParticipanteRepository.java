@@ -1,6 +1,6 @@
 package br.com.agenda.eventosapi.repository;
 
-import br.com.agenda.eventosapi.dto.RankingParticipanteDTO;
+import br.com.agenda.eventosapi.dto.ranking.RankingParticipanteDTO;
 import br.com.agenda.eventosapi.model.Participante;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

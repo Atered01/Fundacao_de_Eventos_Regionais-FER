@@ -1,6 +1,6 @@
 package br.com.agenda.eventosapi.repository;
 
-import br.com.agenda.eventosapi.dto.RankingOrganizadorDTO;
+import br.com.agenda.eventosapi.dto.ranking.RankingOrganizadorDTO;
 import br.com.agenda.eventosapi.model.Evento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,4 +57,19 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
             @Param("userLon") BigDecimal userLon,
             @Param("radius") Double radius
     );
+
+    @Query("SELECT e FROM Evento e WHERE " +
+            "(:nome IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) AND " +
+            "(:cidade IS NULL OR LOWER(e.endereco.cidade) LIKE LOWER(CONCAT('%', :cidade, '%'))) AND " +
+            "(:categoria IS NULL OR e.categoria.nome = :categoria) AND " +
+            "(:data IS NULL OR CAST(e.data AS LocalDate) = :data)")
+    Page<Evento> encontrarComFiltros( // <-- Retorna Page<Evento>
+                                      @Param("nome") String nome,
+                                      @Param("cidade") String cidade,
+                                      @Param("categoria") String categoria,
+                                      @Param("data") LocalDate data,
+                                      Pageable pageable);
+
+    @Query("SELECT DISTINCT e.endereco.cidade FROM Evento e WHERE e.endereco.cidade IS NOT NULL ORDER BY e.endereco.cidade ASC")
+    List<String> findCidadesDistintas();
 }

@@ -1,6 +1,6 @@
 package br.com.agenda.eventosapi.exception;
 
-import br.com.agenda.eventosapi.dto.ErrorResponseDTO;
+import br.com.agenda.eventosapi.dto.utils.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

@@ -1,6 +1,6 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.OrganizadorDTO;
+import br.com.agenda.eventosapi.dto.admin.OrganizadorDTO;
 import br.com.agenda.eventosapi.model.Organizador;
 import br.com.agenda.eventosapi.repository.OrganizadorRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,10 +1,11 @@
 package br.com.agenda.eventosapi.service;
 
-import br.com.agenda.eventosapi.dto.InscricaoRequestDTO;
+import br.com.agenda.eventosapi.dto.evento.InscricaoRequestDTO;
 import br.com.agenda.eventosapi.model.Evento;
 import br.com.agenda.eventosapi.model.Participante;
 import br.com.agenda.eventosapi.repository.EventoRepository;
 import br.com.agenda.eventosapi.repository.ParticipanteRepository;
+import br.com.agenda.eventosapi.service.usuario.ParticipanteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

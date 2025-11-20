@@ -1,8 +1,8 @@
 package br.com.agenda.eventosapi.controller;
 
-import br.com.agenda.eventosapi.dto.RankingOrganizadorDTO;
-import br.com.agenda.eventosapi.dto.RankingParticipanteDTO;
-import br.com.agenda.eventosapi.service.RankingService;
+import br.com.agenda.eventosapi.dto.ranking.RankingOrganizadorDTO;
+import br.com.agenda.eventosapi.dto.ranking.RankingParticipanteDTO;
+import br.com.agenda.eventosapi.service.evento.RankingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API sem estado
                 .authorizeHttpRequests(authorize -> authorize
                         // Login, Cadastro e Esquici senha
@@ -63,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/organizadores/*").hasRole("ADMIN")
 
                         // Permissões para Categorias
+                        .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/categorias").hasAnyRole("ADMIN", "ORGANIZADOR")
                         .requestMatchers(HttpMethod.PUT, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
                         .requestMatchers(HttpMethod.DELETE, "/categorias/*").hasAnyRole("ADMIN", "ORGANIZADOR")
