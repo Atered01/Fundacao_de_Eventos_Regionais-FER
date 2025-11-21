@@ -42,11 +42,11 @@ public class Evento {
     @Column(name = "limite_participantes")
     private Integer limiteParticipantes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organizador_id")
     private Organizador organizador;
 

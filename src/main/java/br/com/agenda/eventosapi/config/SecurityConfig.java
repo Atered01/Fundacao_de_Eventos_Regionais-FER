@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/eventos/*/avaliacoes").hasRole("PARTICIPANTE")
 
                         // Permissões para Organizadores
+                        .requestMatchers(HttpMethod.GET, "/organizadores/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/organizadores").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/organizadores/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/organizadores/*").hasRole("ADMIN")

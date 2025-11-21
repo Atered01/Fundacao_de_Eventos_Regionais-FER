@@ -83,7 +83,7 @@ public class EventoService {
         return eventoRepository.findById(id).map(this::toResponseDTO);
     }
 
-    protected EventoResponseDTO toResponseDTO(Evento evento) {
+    public EventoResponseDTO toResponseDTO(Evento evento) {
         String imagemUrl = null;
         if (evento.getImagem() != null) {
             // Se o evento tiver uma imagem, construímos o URL para o endpoint que a serve
@@ -204,10 +204,12 @@ public class EventoService {
         return evento.getImagem();
     }
 
+    @Transactional(readOnly = true)
     public Page<EventoResponseDTO> listarComFiltros(String nome, String cidade, String categoria, LocalDate data, Pageable pageable) {
         Page<Evento> eventosPage = eventoRepository.encontrarComFiltros(nome, cidade, categoria, data, pageable);
         return eventosPage.map(EventoResponseDTO::fromEntity);
     }
+
 
     public List<String> listarCidadesComEventos() {
         return eventoRepository.findCidadesDistintas();

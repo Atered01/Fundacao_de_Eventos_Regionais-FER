@@ -14,7 +14,7 @@ public interface ParticipanteRepository extends JpaRepository<Participante, Long
     Optional<Participante> findByIdAndEventoId(Long participanteId, Long eventoId);
     Page<Participante> findByEmail(String email, Pageable pageable);
     @Query("""
-        SELECT new br.com.agenda.eventosapi.dto.RankingParticipanteDTO(p.nome, COUNT(p))
+        SELECT new br.com.agenda.eventosapi.dto.ranking.RankingParticipanteDTO(p.nome, COUNT(p))
         FROM Participante p
         GROUP BY p.email, p.nome
         ORDER BY COUNT(p) DESC

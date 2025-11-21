@@ -26,11 +26,11 @@ public class Avaliacao {
     @Column(name = "data_avaliacao")
     private LocalDateTime dataAvaliacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evento_id")
     private Evento evento;
 }

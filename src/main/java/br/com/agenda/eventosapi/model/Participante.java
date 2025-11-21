@@ -25,7 +25,7 @@ public class Participante {
 
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evento_id")
     @JsonBackReference
     private Evento evento;

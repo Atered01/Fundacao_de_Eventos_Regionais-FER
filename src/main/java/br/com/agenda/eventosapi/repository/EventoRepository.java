@@ -28,7 +28,7 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     long countByDataAfter(LocalDateTime data);
 
     @Query("""
-        SELECT new br.com.agenda.eventosapi.dto.RankingOrganizadorDTO(o.nome, COUNT(e))
+        SELECT new br.com.agenda.eventosapi.dto.ranking.RankingOrganizadorDTO(o.nome, COUNT(e))
         FROM Evento e JOIN e.organizador o
         GROUP BY o.id, o.nome
         ORDER BY COUNT(e) DESC
